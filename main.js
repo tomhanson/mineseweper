@@ -28,11 +28,15 @@ function Space(x, y, b) {
 //self invoke this when using
 Space.prototype.createSpace = function(number) {
     var ls = document.createElement("div");
+    var sp = document.createElement("div");
     ls.classList.add('space');
     ls.classList.add(this.b);
-    var t = document.createTextNode(number + 1 + ' ' + this.b);
+    var t = document.createTextNode(number + 1);
+    var a = document.createTextNode(this.b);
     ls.appendChild(t);
+    sp.appendChild(a);
     var box = document.getElementById("minefield");
+    ls.appendChild(sp);
     box.appendChild(ls);
 };
 //make this a space prototype that takes spaces array as its parameter
@@ -74,7 +78,7 @@ Course.prototype.armBombs = function() {
     console.log(this.spaces);
 };
 
-x = new Course(10, 10, 12);
+x = new Course(10, 10, 30);
 x.createBoard();
 x.addBombs();
 x.armBombs();
