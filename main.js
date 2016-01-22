@@ -18,7 +18,6 @@ Course.prototype.createBoard = function() {
             this.spaces.push( new Space(x, y, false) );
         }
     }
-
 };
 //make this a space prototype that takes spaces array as its parameter
 Course.prototype.addBombs = function() {
@@ -44,6 +43,9 @@ Course.prototype.armBombs = function() {
         for (bm = 0; bm < this.armed.length; bm++ ) {
             if(this.spaces[sp].x === this.armed[bm][0] && this.spaces[sp].y === this.armed[bm][1]) {
                 this.spaces[sp].b = true;
+
+                this.spaces[sp-1].bombsNear += 1;
+                this.spaces[sp+1].bombsNear += 1;
             }
         }
     }
@@ -58,7 +60,7 @@ Course.prototype.armBombs = function() {
 Course.prototype.awareness = function(param) {
     for(a = 0; a < param.length; a++) {
         if(param[a].b !== true ) {
-            console.log('I am space ' + (a) + '. I am not armed, check my bomb awareness');
+            //console.log('I am space ' + a + '. I am not armed, check my bomb awareness');
             var diagUpLeft = (a - this.width ) - 1;
             var up = a - this.width;
             var diagUpRight = (a - this.width) + 1;
@@ -67,19 +69,34 @@ Course.prototype.awareness = function(param) {
             var diagDownLeft = (a + this.width) - 1;
             var down = a + this.width;
             var diagDownRight = (a + this.width) + 1;
-            console.log(diagUpLeft + ' is up-left');
-            console.log(up + ' is up');
-            console.log(diagUpRight + ' is up-right');
-            console.log(back + ' is back');
-            console.log(forward + ' is forward');
-            console.log(diagDownLeft + ' is down-left');
-            console.log(down + ' is down');
-            console.log(diagDownRight + ' is down-right');
-            //if(param[(a - this.width)].b === true || (a - this.width) == true ); {
-                //console.log('a space ' + this.width + ' behind me is armed');
-            //}
+
+
+
+
+
+            if( a - this.width >= 0 && a + this.width < this.totalSpace ) {
+
+
+
+
+                console.log(diagUpLeft + ' is up-left');
+                console.log(up + ' is up');
+                console.log(diagUpRight + ' is up-right');
+                console.log(back + ' is back');
+                console.log(forward + ' is forward');
+                console.log(diagDownLeft + ' is down-left');
+                console.log(down + ' is down');
+                console.log(diagDownRight + ' is down-right');
+
+
+
+                if(param[up].b == true ); {
+                    param[a].bombsNear += 1;
+                }
+            }
         }
     }
+    //console.log(this.spaces);
 };
 
 /*-------------------------------------------------------------------------------*/
@@ -89,7 +106,7 @@ function Space(x, y, b) {
     this.x = x;
     this.y = y;
     this.b = b;
-    this.nearyBombs = 0;
+    this.bombsNear = 0;
 }
 //self invoke this when using
 Space.prototype.createSpace = function(number) {
