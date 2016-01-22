@@ -19,25 +19,66 @@ Course.prototype.createBoard = function() {
         }
     }
 };
-//make this a space prototype that takes spaces array as its parameter
+//add bombs
 Course.prototype.addBombs = function() {
-    //randomly generate the two numbers here, assign them to the array - if the array has them then keep trying numbers
-    bombX = Math.floor( ( (Math.random() * 10) + 1 ) );
-    bombY = Math.floor( ( (Math.random() * 10) + 1 ) );
-    //empty array which will hold the armed space coords.
-    this.armed = [];
     //loop through the number of bombs and add a set of coords to the array - need to add a failsafe incase the same coords are chosen
     this.bombSpaces = function() {
-        for (z = 1; z <= this.bombs; z++) {
-            bombX = Math.floor( ( (Math.random() * 10) + 1 ) );
-            bombY = Math.floor( ( (Math.random() * 10) + 1 ) );
-            this.armed.push([bombX, bombY]);
+        for (z = this.bombs; z > 0; z--) {
+            //var bombs = this.bombs;
+            var bombSpace = Math.ceil( ( (Math.random() * 100) - 1 ) );
+            if(this.spaces[bombSpace].b !== true ) {
+                this.spaces[bombSpace].b = true;
+                //set variables for all possible spaces around bombs
+                var diagUpLeft = (bombSpace - this.width ) - 1;
+                var up = bombSpace - this.width;
+                var diagUpRight = (bombSpace - this.width) + 1;
+                var back = bombSpace - 1;
+                var forward = bombSpace + 1;
+                var diagDownLeft = (bombSpace + this.width) - 1;
+                var down = bombSpace + this.width;
+                var diagDownRight = (bombSpace + this.width) + 1;
+
+                if (typeof this.spaces[diagUpLeft] !="undefined") {
+                    this.spaces[diagUpLeft].bombsNear +=1;
+                }
+                if (typeof this.spaces[up] !="undefined") {
+                    this.spaces[up].bombsNear +=1;
+                }
+                if (typeof this.spaces[diagUpRight] !="undefined") {
+                    this.spaces[diagUpRight].bombsNear +=1;
+                }
+                if (typeof this.spaces[back] !="undefined") {
+                    this.spaces[back].bombsNear +=1;
+                }
+                if (typeof this.spaces[forward] !="undefined") {
+                    this.spaces[forward].bombsNear +=1;
+                }
+                if (typeof this.spaces[diagDownLeft] !="undefined") {
+                    this.spaces[diagDownLeft].bombsNear +=1;
+                }
+                if (typeof this.spaces[down] !="undefined") {
+                    this.spaces[down].bombsNear +=1;
+                }
+                if (typeof this.spaces[diagDownRight] !="undefined") {
+                    this.spaces[diagDownRight].bombsNear +=1;
+                }
+
+            } else {
+                z++;
+                console.log('duplicate');
+            }
+            //this.armed.push([bombX, bombY]);
         }
+        for (cs = 0; cs < this.totalSpace; cs++ ) {
+            //create the space html
+            this.spaces[cs].createSpace(cs);
+        }
+        console.log(this.spaces);
     };
     this.bombSpaces();
 };
 //go through every space and check if its x & y coords match any of the ones in the armed coordinates array
-Course.prototype.armBombs = function() {
+/*Course.prototype.armBombs = function() {
     for(sp = 0; sp < this.spaces.length; sp++ ) {
         //for each space loop through each item and check the armed array for any matches, set armed to true if it does match
         for (bm = 0; bm < this.armed.length; bm++ ) {
@@ -76,20 +117,6 @@ Course.prototype.awareness = function(param) {
 
             if( a - this.width >= 0 && a + this.width < this.totalSpace ) {
 
-
-
-
-                console.log(diagUpLeft + ' is up-left');
-                console.log(up + ' is up');
-                console.log(diagUpRight + ' is up-right');
-                console.log(back + ' is back');
-                console.log(forward + ' is forward');
-                console.log(diagDownLeft + ' is down-left');
-                console.log(down + ' is down');
-                console.log(diagDownRight + ' is down-right');
-
-
-
                 if(param[up].b == true ); {
                     param[a].bombsNear += 1;
                 }
@@ -97,7 +124,7 @@ Course.prototype.awareness = function(param) {
         }
     }
     //console.log(this.spaces);
-};
+};*/
 
 /*-------------------------------------------------------------------------------*/
 
@@ -110,24 +137,31 @@ function Space(x, y, b) {
 }
 //self invoke this when using
 Space.prototype.createSpace = function(number) {
-    var ls = document.createElement("div");
+    //create divs to hold info
     var sp = document.createElement("div");
-    ls.classList.add('space');
-    ls.classList.add(this.b);
-    var t = document.createTextNode(number + 1);
-    var a = document.createTextNode(this.b);
-    ls.appendChild(t);
-    sp.appendChild(a);
+    var ol = document.createElement("div");
+    //reference the container
     var box = document.getElementById("minefield");
-    ls.appendChild(sp);
-    box.appendChild(ls);
+    //variables for how many bombs are nearby
+    if(this.b !== true) {
+        var a = document.createTextNode(this.bombsNear);
+    } else {
+        var a = document.createTextNode("Bomb!");
+    }
+    //add classes to the divs
+    ol.classList.add('cover');
+    sp.classList.add('space');
+    sp.classList.add(this.b);
+    sp.appendChild(a);
+    sp.appendChild(ol);
+    box.appendChild(sp);
 };
 
 
 x = new Course(10, 10, 30);
 x.createBoard();
 x.addBombs();
-x.armBombs();
+//x.armBombs();
 
 
 
