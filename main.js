@@ -12,9 +12,9 @@ Course.prototype.createBoard = function() {
     y = 1;
     //run through each square and create a new space object which takes the coords as parameters
     for(x = 1; x <= this.width; x += 1) {
-        this.spaces.push( new Space(x, y, false) );
+        this.spaces.push( new Space(x, y) );
         for(y = 1; y < this.height; y += 1 ) {
-            this.spaces.push( new Space(x, y, false) );
+            this.spaces.push( new Space(x, y) );
         }
     }
 };
@@ -65,30 +65,34 @@ Course.prototype.addBombs = function() {
             } else {
                 z++;
             }
-            //this.armed.push([bombX, bombY]);
         }
         for (cs = 0; cs < this.totalSpace; cs++ ) {
             //create the space html
             this.spaces[cs].createSpace(cs);
+            this.spaces[cs].clickEvent();
         }
     };
+    //invoke the function above
     this.bombSpaces();
 };
 /*-------------------------------------------------------------------------------*/
 
 //create space object
-function Space(x, y, b) {
+function Space(x, y) {
     this.x = x;
     this.y = y;
-    this.b = b;
+    this.b = false;
     this.bombsNear = 0;
+
 }
 Space.prototype.createSpace = function(number) {
+    //console.log(this);
     //create divs to hold info
     this.sp = document.createElement("div");
+    this.ol = document.createElement("div");
+    this.spaceNumber = number;
     this.sp.classList.add('space');
     this.sp.classList.add(this.b);
-    this.ol = document.createElement("div");
     this.ol.classList.add('cover');
     //reference the container
     this.box = document.getElementById("minefield");
@@ -104,18 +108,15 @@ Space.prototype.createSpace = function(number) {
     this.box.appendChild(this.sp);
 
 };
-Space.prototype.onClick = function() {
-    console.log(this.sp);
-    this.addEventListener = function() {
-        console.log(this.sp);
-    };
-    //this.addEventListener();
-    document.getElementById('minefield').onclick = function() {
-        console.log('clicked');
-    };
-}();
+Space.prototype.clickEvent = function() {
+    var cover = this.ol;
+    this.sp.addEventListener("click", function(){
+        cover.classList.remove('cover');
+    });
+};
 
-x = new Course(10, 10, 30);
+
+x = new Course(10, 10, 15);
 x.createBoard();
 x.addBombs();
 
