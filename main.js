@@ -17,7 +17,6 @@ Course.prototype.createBoard = function() {
             this.spaces.push( new Space(x, y) );
         }
     }
-    console.log(this.spaces);
 };
 //add bombs
 Course.prototype.addBombs = function() {
@@ -70,12 +69,17 @@ Course.prototype.addBombs = function() {
         for (cs = 0; cs < this.totalSpace; cs++ ) {
             //create the space html
             this.spaces[cs].createSpace(cs);
-            this.spaces[cs].clickEvent();
-            console.log( this.spaces[cs].x );
-            console.log( this.spaces[cs].y );
-            console.log( 'my bomb status is ' + this.spaces[cs].b );
-            console.log( 'square is ' + cs);
-            console.log( '- - - - - - - - -' );
+            //setup click event and give the space the variables for the spaces around it.
+            var diagUpLeft = (cs - this.width ) - 1;
+            var up = cs - this.width;
+            var diagUpRight = (cs - this.width) + 1;
+            var back = cs - 1;
+            var forward = cs + 1;
+            var diagDownLeft = (cs + this.width) - 1;
+            var down = cs + this.width;
+            var diagDownRight = (cs + this.width) + 1;
+
+            this.spaces[cs].clickEvent(this.spaces, diagUpLeft, up, diagUpRight, back, forward, diagDownLeft, down, diagDownRight);
         }
     };
     //invoke the function above
@@ -92,7 +96,6 @@ function Space(x, y) {
 
 }
 Space.prototype.createSpace = function(number) {
-    //console.log(this);
     //create divs to hold info
     this.sp = document.createElement("div");
     this.ol = document.createElement("div");
@@ -104,12 +107,14 @@ Space.prototype.createSpace = function(number) {
     this.box = document.getElementById("minefield");
     //variables for how many bombs are nearby
     if(this.b !== true) {
+        //if it is not a bomb space then print out the number of bombs around that space
         this.ap = document.createElement('p');
         var text = this.bombsNear.toString();
         this.a = document.createTextNode(text);
         this.ap.innerHTML = text;
         this.sp.appendChild(this.ap);
     } else {
+        //if it is a bomb space put an SVG bomb in
         this.sp.innerHTML = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="512px" height="512px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">\
         <g>\
             <path d="M218.255,131.197c16.958,0,33.379,2.285,48.987,6.542V91.448h-92.995v45.008 C188.357,133.027,203.091,131.197,218.255,131.197z"/>\
@@ -120,15 +125,87 @@ Space.prototype.createSpace = function(number) {
         </svg>';
     }
     //stitch it all together
-
     this.sp.appendChild(this.ol);
     this.box.appendChild(this.sp);
 
 };
-Space.prototype.clickEvent = function() {
+Space.prototype.clickEvent = function(array, upLeft, up, upRight, back, forward, downLeft, down, downRight) {
+
+    this.spaces = array;
+
+    this.upLeft = upLeft;
+    this.up = up;
+    this.upRight = upRight;
+    this.back = back;
+    this.forward = forward;
+    this.downLeft = downLeft;
+    this.down = down;
+    this.downRight = downRight;
+    //reset the properties to be the space from the array
+    this.upLeft = this.spaces[this.upLeft];
+    this.up = this.spaces[this.up];
+    this.upRight = this.spaces[this.upRight];
+    this.back = this.spaces[this.back];
+    this.forward = this.spaces[this.forward];
+    this.downLeft = this.spaces[this.downLeft];
+    this.down = this.spaces[this.down];
+    this.downRight = this.spaces[this.downRight];
+
+    var upLeft = this.upLeft;
+    var up = this.up;
+    var upRight = this.upRight;
+    var back = this.back;
+    var forward = this.forward;
+    var downLeft = this.downLeft;
+    var down = this.down;
+    var downRight = this.downRight;
+
+    var spaces = this.spaces;
+
     var cover = this.ol;
-    this.sp.addEventListener("click", function(){
+    var bombsNear = this.bombsNear;
+    this.openArea = function(space) {
+        if( space.bombsNear === 0 ) {
+            space.ol.remove('cover');
+        }
+    };
+    this.sp.addEventListener("click", function() {
         cover.classList.remove('cover');
+        if(bombsNear === 0 ) {
+
+            if (typeof upLeft !="undefined" && upLeft.y != 10 && upLeft.bombsNear === 0 ) {
+                upLeft.ol.classList.remove('cover');
+            }
+            if (typeof up !="undefined" && up.y != 10 && up.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                up.ol.classList.remove('cover');
+            }
+            if (typeof upRight !="undefined" && upRight.y != 10 && upRight.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                upRight.ol.classList.remove('cover');
+            }
+            if (typeof back !="undefined" && back.y != 10 && back.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                back.ol.classList.remove('cover');
+            }
+            if (typeof forward !="undefined" && forward.y != 10 && forward.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                forward.ol.classList.remove('cover');
+            }
+            if (typeof downLeft !="undefined" && downLeft.y != 10 && downLeft.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                downLeft.ol.classList.remove('cover');
+            }
+            if (typeof downLeft !="undefined" && downLeft.y != 10 && downLeft.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                down.ol.classList.remove('cover');
+            }
+            if (typeof downRight !="undefined" && downRight.y != 10 && downRight.bombsNear === 0 ) {
+                //console.log(upLeft.ol.classList);
+                downRight.ol.classList.remove('cover');
+            }
+
+        }
     });
 };
 
@@ -139,5 +216,12 @@ x.addBombs();
 
 
 
-
+//detect a right click
+function doSomething(e) {
+    var rightclick;
+    if (!e) var e = window.event;
+    if (e.which) rightclick = (e.which == 3);
+    else if (e.button) rightclick = (e.button == 2);
+    alert('Rightclick: ' + rightclick); // true or false
+}
 
