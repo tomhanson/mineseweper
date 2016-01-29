@@ -8,60 +8,97 @@ function Course(width, height, bombs) {
 }
 //create a new space object for each space
 Course.prototype.createBoard = function() {
-    var x, y;
-
+    var x, y, s, css;
     //run through each square and create a new space object which takes the coords as parameters
-    for(x = 1; x <= this.width; x += 1) {
-        y = 1;
-        for(y = 1; y <= this.height; y += 1 ) {
-            this.spaces.push( new Space(x, y) );
+    s = 0;
+    for(x = 1; x <= this.width; x++ ) {
+        for(y = 1; y <= this.height; y++ ) {
+            this.spaces.push( new Space(s, x, y) );
+            s++;
         }
     }
+    for (css = 0; css < this.totalSpace; css++ ) {
+        var diagUpLeft = this.spaces[ (css - this.width ) - 1 ];
+        var up = this.spaces[ css - this.width ];
+        var diagUpRight = this.spaces[ (css - this.width) + 1 ];
+        var back = this.spaces[ css - 1 ];
+        var forward = this.spaces[ css + 1 ];
+        var diagDownLeft = this.spaces[ (css + this.width) - 1 ];
+        var down = this.spaces[ css + this.width ];
+        var diagDownRight = this.spaces[ (css + this.width) + 1 ];
+        //add these to an array in each space for easy access
+        this.spaces[css].neighbours.push(diagUpLeft, up, diagUpRight, back, forward, diagDownLeft, down, diagDownRight);
+    }
+    console.log(this.spaces);
 };
 //add bombs
 Course.prototype.addBombs = function() {
-    //loop through the number of bombs and add a set of coords to the array - need to add a failsafe incase the same coords are chosen
+    //loop through the number of bombs, random number from 0 - width * height (the -1 is so it matches the array starting at 0) and assign that space object in the array a bomb
     this.bombSpaces = function() {
+        var cs, th, z;
         for (z = this.bombs; z > 0; z--) {
-            //var bombs = this.bombs;
             var bombSpace = Math.ceil( ( (Math.random() * this.totalSpace) - 1 ) );
             if(this.spaces[bombSpace].b !== true ) {
                 this.spaces[bombSpace].b = true;
-                //set variables for all possible spaces around bombs
-                var diagUpLeft = (bombSpace - this.width ) - 1;
-                var up = bombSpace - this.width;
-                var diagUpRight = (bombSpace - this.width) + 1;
-                var back = bombSpace - 1;
-                var forward = bombSpace + 1;
-                var diagDownLeft = (bombSpace + this.width) - 1;
-                var down = bombSpace + this.width;
-                var diagDownRight = (bombSpace + this.width) + 1;
-                //check each variable to test if it a valid item in the array
-                if (typeof this.spaces[diagUpLeft] !="undefined" && this.spaces[diagUpLeft].y != 10) {
-                    this.spaces[diagUpLeft].bombsNear +=1;
-                }
-                if (typeof this.spaces[up] !="undefined" ) {
-                    this.spaces[up].bombsNear +=1;
-                }
-                if (typeof this.spaces[diagUpRight] !="undefined" && this.spaces[diagUpRight].y != 1) {
-                    this.spaces[diagUpRight].bombsNear +=1;
-                }
-                if (typeof this.spaces[back] !="undefined" && this.spaces[back].y != 10) {
-                    this.spaces[back].bombsNear +=1;
-                }
-                if (typeof this.spaces[forward] !="undefined" && this.spaces[forward].y != 1) {
-                    this.spaces[forward].bombsNear +=1;
-                }
-                if (typeof this.spaces[diagDownLeft] !="undefined" && this.spaces[diagDownLeft].y != 10) {
-                    this.spaces[diagDownLeft].bombsNear +=1;
-                }
-                if (typeof this.spaces[down] !="undefined" ) {
-                    this.spaces[down].bombsNear +=1;
-                }
-                if (typeof this.spaces[diagDownRight] !="undefined"  && this.spaces[diagDownRight].y != 1) {
-                    this.spaces[diagDownRight].bombsNear +=1;
-                }
+                //setup a for loop to run through the spaces around each bomb space
+                for(th=0; th < this.spaces[bombSpace].neighbours.length; th++ ) {
+                    //variable to hold the current array item of the neighbours array
+                    var currentSquare = this.spaces[bombSpace].neighbours[th];
 
+                    //if current square is undefined then skip it as its not valid in the array
+                    if( typeof currentSquare != "undefined" ) {
+                        switch (th) {
+                            case 0:
+                                if ( currentSquare.y != 10 ) {
+                                    currentSquare.bombsNear +=1;
+                                } else {
+                                    currentSquare = undefined;
+                                }
+                                break;
+                            case 1:
+                                currentSquare.bombsNear +=1;
+                                break;
+                            case 2:
+                                if ( currentSquare.y != 1 ) {
+                                    currentSquare.bombsNear +=1;
+                                } else {
+                                    currentSquare = undefined;
+                                }
+                                break;
+                            case 3:
+                                if ( currentSquare.y != 10 ) {
+                                    currentSquare.bombsNear +=1;
+                                } else {
+                                    currentSquare = undefined;
+                                }
+                                break;
+                            case 4:
+                                if ( currentSquare.y != 1 ) {
+                                    currentSquare.bombsNear +=1;
+                                } else {
+                                    currentSquare = undefined;
+                                }
+                                break;
+                            case 5:
+                                if ( currentSquare.y != 10 ) {
+                                    currentSquare.bombsNear +=1;
+                                } else {
+                                    currentSquare = undefined;
+                                }
+                                break;
+                            case  6:
+                                currentSquare.bombsNear +=1;
+                                break;
+                            case  7:
+                                if ( currentSquare.y != 1 ) {
+                                    currentSquare.bombsNear +=1;
+                                } else {
+                                    currentSquare = undefined;
+                                }
+                                break;
+                        }
+                    }
+                }
             } else {
                 z++;
             }
@@ -69,17 +106,7 @@ Course.prototype.addBombs = function() {
         for (cs = 0; cs < this.totalSpace; cs++ ) {
             //create the space html
             this.spaces[cs].createSpace(cs);
-            //setup click event and give the space the variables for the spaces around it.
-            var diagUpLeft = (cs - this.width ) - 1;
-            var up = cs - this.width;
-            var diagUpRight = (cs - this.width) + 1;
-            var back = cs - 1;
-            var forward = cs + 1;
-            var diagDownLeft = (cs + this.width) - 1;
-            var down = cs + this.width;
-            var diagDownRight = (cs + this.width) + 1;
-
-            this.spaces[cs].clickEvent(this.spaces, diagUpLeft, up, diagUpRight, back, forward, diagDownLeft, down, diagDownRight);
+            this.spaces[cs].clickEvent();
         }
     };
     //invoke the function above
@@ -88,18 +115,22 @@ Course.prototype.addBombs = function() {
 /*-------------------------------------------------------------------------------*/
 
 //create space object
-function Space(x, y) {
-    this.x = x;
-    this.y = y;
-    this.b = false;
-    this.bombsNear = 0;
-
+function Space(space, x, y) {
+    self = this;
+    //set its space on the board
+    self.space = space;
+    self.x = x;
+    self.y = y;
+    self.b = false;
+    self.bombsNear = 0;
+    self.neighbours = [];
+    self.revealed = false;
 }
-Space.prototype.createSpace = function(number) {
+
+Space.prototype.createSpace = function() {
     //create divs to hold info
     this.sp = document.createElement("div");
     this.ol = document.createElement("div");
-    this.spaceNumber = number;
     this.sp.classList.add('space');
     this.sp.classList.add(this.b);
     this.ol.classList.add('cover');
@@ -129,82 +160,48 @@ Space.prototype.createSpace = function(number) {
     this.box.appendChild(this.sp);
 
 };
-Space.prototype.clickEvent = function(array, upLeft, up, upRight, back, forward, downLeft, down, downRight) {
 
-    this.spaces = array;
-
-    this.upLeft = upLeft;
-    this.up = up;
-    this.upRight = upRight;
-    this.back = back;
-    this.forward = forward;
-    this.downLeft = downLeft;
-    this.down = down;
-    this.downRight = downRight;
-    //reset the properties to be the space from the array
-    this.upLeft = this.spaces[this.upLeft];
-    this.up = this.spaces[this.up];
-    this.upRight = this.spaces[this.upRight];
-    this.back = this.spaces[this.back];
-    this.forward = this.spaces[this.forward];
-    this.downLeft = this.spaces[this.downLeft];
-    this.down = this.spaces[this.down];
-    this.downRight = this.spaces[this.downRight];
-
-    var upLeft = this.upLeft;
-    var up = this.up;
-    var upRight = this.upRight;
-    var back = this.back;
-    var forward = this.forward;
-    var downLeft = this.downLeft;
-    var down = this.down;
-    var downRight = this.downRight;
-
-    var spaces = this.spaces;
-
+Space.prototype.clickEvent = function() {
+    var self = this;
     var cover = this.ol;
-    var bombsNear = this.bombsNear;
-    this.openArea = function(space) {
-        if( space.bombsNear === 0 ) {
-            space.ol.remove('cover');
+    //variable sets up the number your space is
+    var mySpace = this.neighbours[3] + 1;
+    //function to run through each space check if it has zero bombs near and then check all of its spaces around until it finishes
+    var spaceCheck = function(space) {
+        //check if the given space falls within the parameters of the board
+        if( typeof space !== "undefined" ) {
+            //set a variable to hold how many bombs are near the current space
+            var bombsNear = space.bombsNear;
+            //if that variable is 0 then move on
+            if(bombsNear === 0 ) {
+                //start a for loop to run through each item in the neighbours array(spaces around current space)
+                for(ch=0; ch < space.neighbours.length; ch++ ) {
+                    //variable to hold the current space as an integer
+                    var currentSpace = space.neighbours[ch];
+                    //if that space is defined and it doesnt have a bomb
+                    if( typeof currentSpace !== "undefined" ) {
+                        if( currentSpace.b !== true && currentSpace.revealed !== true && currentSpace.bombsNear === 0 ) {
+                            currentSpace.ol.classList.remove('cover');
+                            currentSpace.revealed = true;
+                            //recursively run the function(it takes an integer parameter) until it returns false.
+                            spaceCheck(currentSpace);
+                        } else if( currentSpace.b !== true && currentSpace.revealed !== true && currentSpace.bombsNear !== 0 ) {
+                            currentSpace.ol.classList.remove('cover');
+                            currentSpace.revealed = true;
+                        }
+                    }
+                }
+            }
         }
     };
     this.sp.addEventListener("click", function() {
         cover.classList.remove('cover');
-        if(bombsNear === 0 ) {
+        if(self.revealed !== true ) {
+            self.revealed = true;
+            spaceCheck(self);
 
-            if (typeof upLeft !="undefined" && upLeft.y != 10 && upLeft.bombsNear === 0 ) {
-                upLeft.ol.classList.remove('cover');
-            }
-            if (typeof up !="undefined" && up.y != 10 && up.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                up.ol.classList.remove('cover');
-            }
-            if (typeof upRight !="undefined" && upRight.y != 10 && upRight.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                upRight.ol.classList.remove('cover');
-            }
-            if (typeof back !="undefined" && back.y != 10 && back.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                back.ol.classList.remove('cover');
-            }
-            if (typeof forward !="undefined" && forward.y != 10 && forward.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                forward.ol.classList.remove('cover');
-            }
-            if (typeof downLeft !="undefined" && downLeft.y != 10 && downLeft.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                downLeft.ol.classList.remove('cover');
-            }
-            if (typeof downLeft !="undefined" && downLeft.y != 10 && downLeft.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                down.ol.classList.remove('cover');
-            }
-            if (typeof downRight !="undefined" && downRight.y != 10 && downRight.bombsNear === 0 ) {
-                //console.log(upLeft.ol.classList);
-                downRight.ol.classList.remove('cover');
-            }
-
+        } else {
+            return false;
         }
     });
 };
