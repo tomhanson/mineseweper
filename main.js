@@ -29,7 +29,7 @@ Course.prototype.createBoard = function() {
         //add these to an array in each space for easy access
         this.spaces[css].neighbours.push(diagUpLeft, up, diagUpRight, back, forward, diagDownLeft, down, diagDownRight);
     }
-    console.log(this.spaces);
+    //console.log(this.spaces);
 };
 //add bombs
 Course.prototype.addBombs = function() {
@@ -47,12 +47,11 @@ Course.prototype.addBombs = function() {
 
                     //if current square is undefined then skip it as its not valid in the array
                     if( typeof currentSquare != "undefined" ) {
+                        //console.log(currentSquare);
                         switch (th) {
                             case 0:
                                 if ( currentSquare.y != 10 ) {
                                     currentSquare.bombsNear +=1;
-                                } else {
-                                    currentSquare = undefined;
                                 }
                                 break;
                             case 1:
@@ -61,29 +60,21 @@ Course.prototype.addBombs = function() {
                             case 2:
                                 if ( currentSquare.y != 1 ) {
                                     currentSquare.bombsNear +=1;
-                                } else {
-                                    currentSquare = undefined;
                                 }
                                 break;
                             case 3:
                                 if ( currentSquare.y != 10 ) {
                                     currentSquare.bombsNear +=1;
-                                } else {
-                                    currentSquare = undefined;
                                 }
                                 break;
                             case 4:
                                 if ( currentSquare.y != 1 ) {
                                     currentSquare.bombsNear +=1;
-                                } else {
-                                    currentSquare = undefined;
                                 }
                                 break;
                             case 5:
                                 if ( currentSquare.y != 10 ) {
                                     currentSquare.bombsNear +=1;
-                                } else {
-                                    currentSquare = undefined;
                                 }
                                 break;
                             case  6:
@@ -92,10 +83,7 @@ Course.prototype.addBombs = function() {
                             case  7:
                                 if ( currentSquare.y != 1 ) {
                                     currentSquare.bombsNear +=1;
-                                } else {
-                                    currentSquare = undefined;
                                 }
-                                break;
                         }
                     }
                 }
@@ -103,14 +91,60 @@ Course.prototype.addBombs = function() {
                 z++;
             }
         }
+        console.log(this.spaces);
         for (cs = 0; cs < this.totalSpace; cs++ ) {
             //create the space html
+            var thh;
+            for(thh=0; thh < this.spaces[cs].neighbours.length; thh++ ) {
+                var newSquare = this.spaces[cs].neighbours[thh];
+                //variable to hold the current array item of the neighbours array
+                //if current square is undefined then skip it as its not valid in the array
+                if( typeof newSquare !== "undefined" ) {
+                    switch (thh) {
+                        case 0:
+                            if ( newSquare.y === 10 ) {
+                                this.spaces[cs].neighbours[0] = undefined;
+                            }
+                            break;
+                        case 2:
+                            if ( newSquare.y === 1 ) {
+                                this.spaces[cs].neighbours[2] = undefined;
+                            }
+                            break;
+                        case 3:
+                            if ( newSquare.y === 10 ) {
+                                this.spaces[cs].neighbours[3] = undefined;
+                            }
+                            break;
+                        case 4:
+                            if ( newSquare.y === 1 ) {
+                                this.spaces[cs].neighbours[4] = undefined;
+                            }
+                            break;
+                        case 5:
+                            if ( newSquare.y === 10 ) {
+                                this.spaces[cs].neighbours[5] = undefined;
+                            }
+                            break;
+                        case  7:
+                            if ( newSquare.y === 1 ) {
+
+                                this.spaces[cs].neighbours[7] = undefined;
+                            }
+                            break;
+                        default:
+                            newSquare = undefined;
+                    }
+                }
+            }
+
             this.spaces[cs].createSpace(cs);
             this.spaces[cs].clickEvent();
         }
     };
     //invoke the function above
     this.bombSpaces();
+    console.log(this.spaces);
 };
 /*-------------------------------------------------------------------------------*/
 
@@ -164,50 +198,56 @@ Space.prototype.createSpace = function() {
 Space.prototype.clickEvent = function() {
     var self = this;
     var cover = this.ol;
-    //variable sets up the number your space is
-    var mySpace = this.neighbours[3] + 1;
     //function to run through each space check if it has zero bombs near and then check all of its spaces around until it finishes
     var spaceCheck = function(space) {
-        //check if the given space falls within the parameters of the board
-        if( typeof space !== "undefined" ) {
-            //set a variable to hold how many bombs are near the current space
-            var bombsNear = space.bombsNear;
-            //if that variable is 0 then move on
-            if(bombsNear === 0 ) {
-                //start a for loop to run through each item in the neighbours array(spaces around current space)
-                for(ch=0; ch < space.neighbours.length; ch++ ) {
-                    //variable to hold the current space as an integer
-                    var currentSpace = space.neighbours[ch];
-                    //if that space is defined and it doesnt have a bomb
-                    if( typeof currentSpace !== "undefined" ) {
-                        if( currentSpace.b !== true && currentSpace.revealed !== true && currentSpace.bombsNear === 0 ) {
+        //check if the given space falls within the parameters of the board and it isnt holding a bomb
+        if( typeof space !== "undefined" && space.b !== true ) {
+            space.ol.classList.remove('cover');
+            space.revealed = true;
+            //start a for loop to run through each item in the neighbours array(spaces around current space)
+            for(ch=0; ch < space.neighbours.length; ch++ ) {
+                //variable to hold the current space as an object
+                console.log(ch);
+                var currentSpace = space.neighbours[ch];
+                //check if space is defined
+                if( typeof currentSpace !== "undefined" && currentSpace.b !== true ) {
+
+                    if( currentSpace.bombsNear === 0 ) {
+                        //make sure the space has no bomb, that it hasn't already had 'revealed' property set to true & that it has no bombs near it
+                        if( currentSpace.revealed !== true ) {
                             currentSpace.ol.classList.remove('cover');
                             currentSpace.revealed = true;
                             //recursively run the function(it takes an integer parameter) until it returns false.
+
+
+                            /*problem*/
                             spaceCheck(currentSpace);
-                        } else if( currentSpace.b !== true && currentSpace.revealed !== true && currentSpace.bombsNear !== 0 ) {
-                            currentSpace.ol.classList.remove('cover');
-                            currentSpace.revealed = true;
+                            /*when this function runs it does not run the rest of the for loop*/
+
                         }
+                        //console.log(ch);
+                    } else  {
+                        currentSpace.ol.classList.remove('cover');
+                        currentSpace.revealed = true;
+                        //console.log(ch);
+
                     }
                 }
             }
         }
     };
     this.sp.addEventListener("click", function() {
-        cover.classList.remove('cover');
-        if(self.revealed !== true ) {
-            self.revealed = true;
+        if(self.revealed !== true && self.bombsNear === 0 ) {
             spaceCheck(self);
-
         } else {
+            self.ol.classList.remove('cover');
             return false;
         }
     });
 };
 
 
-x = new Course(10, 10, 15);
+x = new Course(10, 10, 30);
 x.createBoard();
 x.addBombs();
 
