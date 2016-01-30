@@ -91,7 +91,6 @@ Course.prototype.addBombs = function() {
                 z++;
             }
         }
-        console.log(this.spaces);
         for (cs = 0; cs < this.totalSpace; cs++ ) {
             //create the space html
             var thh;
@@ -144,7 +143,6 @@ Course.prototype.addBombs = function() {
     };
     //invoke the function above
     this.bombSpaces();
-    console.log(this.spaces);
 };
 /*-------------------------------------------------------------------------------*/
 
@@ -207,7 +205,6 @@ Space.prototype.clickEvent = function() {
             //start a for loop to run through each item in the neighbours array(spaces around current space)
             for(ch=0; ch < space.neighbours.length; ch++ ) {
                 //variable to hold the current space as an object
-                console.log(ch);
                 var currentSpace = space.neighbours[ch];
                 //check if space is defined
                 if( typeof currentSpace !== "undefined" && currentSpace.b !== true ) {
@@ -218,23 +215,19 @@ Space.prototype.clickEvent = function() {
                             currentSpace.ol.classList.remove('cover');
                             currentSpace.revealed = true;
                             //recursively run the function(it takes an integer parameter) until it returns false.
-
-
                             /*problem*/
                             spaceCheck(currentSpace);
                             /*when this function runs it does not run the rest of the for loop*/
-
                         }
-                        //console.log(ch);
                     } else  {
                         currentSpace.ol.classList.remove('cover');
                         currentSpace.revealed = true;
-                        //console.log(ch);
-
                     }
                 }
             }
+
         }
+
     };
     this.sp.addEventListener("click", function() {
         if(self.revealed !== true && self.bombsNear === 0 ) {
@@ -247,7 +240,7 @@ Space.prototype.clickEvent = function() {
 };
 
 
-x = new Course(10, 10, 30);
+x = new Course(10, 10, 15);
 x.createBoard();
 x.addBombs();
 
