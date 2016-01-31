@@ -3,7 +3,7 @@ function Course(width, height, bombs) {
     this.width = width;
     this.height = height;
     this.totalSpace = this.width * this.height;
-    this.bombs = bombs || (this.totalSpace / 100) * 33;
+    this.bombs = bombs || (this.totalSpace / 100) * 15;
     this.spaces = [];
 }
 //create a new space object for each space
@@ -28,8 +28,7 @@ Course.prototype.createBoard = function() {
         var diagDownRight = this.spaces[ (css + this.width) + 1 ];
         //add these to an array in each space for easy access
         this.spaces[css].neighbours.push(diagUpLeft, up, diagUpRight, back, forward, diagDownLeft, down, diagDownRight);
-    }
-    //console.log(this.spaces);
+    }    console.log(this.spaces);
 };
 //add bombs
 Course.prototype.addBombs = function() {
@@ -47,7 +46,6 @@ Course.prototype.addBombs = function() {
 
                     //if current square is undefined then skip it as its not valid in the array
                     if( typeof currentSquare != "undefined" ) {
-                        //console.log(currentSquare);
                         switch (th) {
                             case 0:
                                 if ( currentSquare.y != 10 ) {
@@ -198,6 +196,7 @@ Space.prototype.clickEvent = function() {
     var cover = this.ol;
     //function to run through each space check if it has zero bombs near and then check all of its spaces around until it finishes
     var spaceCheck = function(space) {
+        var ch;
         //check if the given space falls within the parameters of the board and it isnt holding a bomb
         if( typeof space !== "undefined" && space.b !== true ) {
             space.ol.classList.remove('cover');
@@ -208,7 +207,7 @@ Space.prototype.clickEvent = function() {
                 var currentSpace = space.neighbours[ch];
                 //check if space is defined
                 if( typeof currentSpace !== "undefined" && currentSpace.b !== true ) {
-
+                    //if defined check if it has any bombs near
                     if( currentSpace.bombsNear === 0 ) {
                         //make sure the space has no bomb, that it hasn't already had 'revealed' property set to true & that it has no bombs near it
                         if( currentSpace.revealed !== true ) {
@@ -218,6 +217,7 @@ Space.prototype.clickEvent = function() {
                             /*problem*/
                             spaceCheck(currentSpace);
                             /*when this function runs it does not run the rest of the for loop*/
+
                         }
                     } else  {
                         currentSpace.ol.classList.remove('cover');
@@ -230,7 +230,7 @@ Space.prototype.clickEvent = function() {
 
     };
     this.sp.addEventListener("click", function() {
-        if(self.revealed !== true && self.bombsNear === 0 ) {
+        if(self.revealed !== true && self.bombsNear === 0 && self.b !== true ) {
             spaceCheck(self);
         } else {
             self.ol.classList.remove('cover');
